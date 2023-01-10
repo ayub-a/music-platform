@@ -1,12 +1,14 @@
-import { Button } from '@mui/material'
+import MainLayout from '../layouts/MainLayout'
 
 const index = () => {
   return (
     <>
-      <div className="center">
-        <h1>Welcome</h1>
-        <h3>Here is the best music library</h3>
-      </div>
+      <MainLayout>
+        <div className="center">
+          <h1>Welcome</h1>
+          <h3>Here is the best music library</h3>
+        </div>
+      </MainLayout>
 
       <style jsx>
         {`
