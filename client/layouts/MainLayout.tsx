@@ -2,7 +2,7 @@ import { Container } from '@mui/material'
 import Navbar from '../components/Navbar'
 
 type MainLayoutProps = {
-  children?: JSX.Element
+  children?: JSX.Element | JSX.Element[]
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
