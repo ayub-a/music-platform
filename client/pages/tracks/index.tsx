@@ -10,6 +10,8 @@ import { ITrack } from '../../types/track'
 const index = () => {
   const router = useRouter()
 
+  const action = useActions()
+
   const tracks: ITrack[] = [
     {
       _id: '63ab6c5c501909572b59fd26',

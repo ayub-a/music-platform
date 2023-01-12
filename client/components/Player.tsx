@@ -2,35 +2,70 @@ import React from 'react'
 import { Pause, PlayArrow, VolumeUp } from '@mui/icons-material'
 import { Grid, IconButton } from '@mui/material'
 import styles from '../styles/Player.module.scss'
-import { ITrack } from '../types/track'
 import TrackProgress from './TrackProgress'
+import { useTypedSelector } from '../hooks/useTypedSelector'
+import { useActions } from '../hooks/useActions'
+
+let audio: any
 
 const Player = () => {
-  const track: ITrack = {
-    _id: '63ab6c5c501909572b59fd26',
-    name: 'if you want love',
-    artist: 'NF',
-    text: 'no lyrics',
-    listens: 0,
-    picture: 'http://localhost:7777/image/2448dfee-054e-4b7d-b938-9717cf5acece.jpeg',
-    audio: 'http://localhost:7777/audio/92624ded-9365-4893-8ded-1858f3aa7ac5.mp3',
-    comments: [],
+  const { active, currentTime, duration, pause, volume } = useTypedSelector((state) => state.player)
+  const { pauseTrack, playTrack, setVolume, setDuration, setCurrentTime } = useActions()
+
+  React.useEffect(() => {
+    if (!audio) {
+      audio = new Audio()
+    } else {
+      setAudio()
+    }
+  }, [active])
+
+  const setAudio = () => {
+    if (active) {
+      audio.src = active.audio
+      audio.volume = volume / 100
+
+      audio.onloadedmetadata = () => {
+        setDuration(Math.ceil(audio.duration))
+      }
+      audio.ontimeupdate = () => {
+        setCurrentTime(Math.ceil(audio.currentTime))
+      }
+    }
   }
 
-  const active = false
+  const play = () => {
+    if (pause) {
+      playTrack()
+      audio.play()
+    } else {
+      pauseTrack()
+      audio.pause()
+    }
+  }
+
+  const changeVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
+    audio.volume = Number(e.target.value) / 100
+    setVolume(Number(e.target.value))
+  }
+
+  const changeCurrentTime = (e: React.ChangeEvent<HTMLInputElement>) => {
+    audio.currentTime = Number(e.target.value)
+    setCurrentTime(Number(e.target.value))
+  }
+
+  if (!active) return null
 
   return (
     <div className={styles.player}>
-      <IconButton onClick={(e) => e.stopPropagation()}>
-        {active ? <Pause /> : <PlayArrow />}
-      </IconButton>
+      <IconButton onClick={play}>{pause ? <PlayArrow /> : <Pause />}</IconButton>
       <Grid container direction={'column'} style={{ padding: '0 20px', width: 'auto' }}>
-        <div>{track.name}</div>
-        <div style={{ fontSize: 12, color: 'grey' }}>{track.artist}</div>
+        <div>{active?.name}</div>
+        <div style={{ fontSize: 12, color: 'grey' }}>{active?.artist}</div>
       </Grid>
-      <TrackProgress left={0} right={100} onChange={() => {}} />
+      <TrackProgress left={currentTime} right={duration} onChange={changeCurrentTime} />
       <VolumeUp style={{ marginLeft: 'auto' }} />
-      <TrackProgress left={0} right={100} onChange={() => {}} />
+      <TrackProgress left={volume} right={100} onChange={changeVolume} />
     </div>
   )
 }
