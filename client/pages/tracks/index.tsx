@@ -1,39 +1,25 @@
 import { Box, Button, Card, Grid } from '@mui/material'
+import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import React from 'react'
 import TrackList from '../../components/TrackList'
-import { useActions } from '../../hooks/useActions'
+import { useTypedSelector } from '../../hooks/useTypedSelector'
 import MainLayout from '../../layouts/MainLayout'
-
-import { ITrack } from '../../types/track'
+import { NextThunkDispatch, wrapper } from '../../store'
+import { fetchTracks } from '../../store/action-creators/track'
 
 const index = () => {
   const router = useRouter()
 
-  const action = useActions()
+  const { tracks, error } = useTypedSelector((state) => state.tracks)
 
-  const tracks: ITrack[] = [
-    {
-      _id: '63ab6c5c501909572b59fd26',
-      name: 'if you want love',
-      artist: 'NF',
-      text: 'no lyrics',
-      listens: 0,
-      picture: 'http://localhost:7777/image/2448dfee-054e-4b7d-b938-9717cf5acece.jpeg',
-      audio: 'http://localhost:7777/audio/92624ded-9365-4893-8ded-1858f3aa7ac5.mp3',
-      comments: [],
-    },
-    {
-      _id: '63bd5c3647998847a74b90a5',
-      name: 'Hell or High Water',
-      artist: 'Billy Raffoul',
-      text: 'no lyrics',
-      listens: 0,
-      picture: 'http://localhost:7777/image/c25c280e-d082-47ea-a6c6-fe0e45196516.jpeg',
-      audio: 'http://localhost:7777/audio/5115eac7-363c-422e-b719-c1094d8bc794.mp3',
-      comments: [],
-    },
-  ]
+  if (error) {
+    return (
+      <MainLayout>
+        <h1>{error}</h1>
+      </MainLayout>
+    )
+  }
 
   return (
     <MainLayout>
@@ -53,3 +39,8 @@ const index = () => {
 }
 
 export default index
+
+export const getServerSideProps: GetServerSideProps = wrapper.getServerSideProps((store) => () => {
+  const dispatch = store.dispatch as NextThunkDispatch
+  return dispatch(fetchTracks() as any)
+})
